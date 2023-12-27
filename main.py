@@ -28,10 +28,12 @@ scroll_v.config(command=textarea.yview)
 # Functionality
 
 # Close the program
+
 def closeApp():
     win.destroy()
 
 # New file
+
 def newFile():
    new = mb.askyesno(title="Are you sure?", message="Make sure to save the file before proceeding!")
    if new: # If ok is pressed delete everything and make a new file
@@ -41,6 +43,7 @@ def newFile():
        pass
 
 # Open file
+
 def openFile(): # Support for basically everything
    file = fd.askopenfilename(defaultextension='.txt', filetypes=[('All Files', '*.*'), ("Text File", "*.txt*")])
    if file != '': # If not null choose the opened file name as the title
@@ -75,6 +78,38 @@ def saveAsFile():  # Open the save as window
         file = open(file, "w")
         file.write(textarea.get(1.0, END))
         file.close()
+
+# Default light theme
+
+def lightTheme():
+    textarea.config(bg="white", fg="black")
+
+# Default dark theme
+
+def darkTheme():
+    textarea.config(bg="#0b213d", fg="white")
+
+# Default ultra dark theme
+def ultraDarkTheme():
+    textarea.config(bg="black", fg="white")
+
+# Change background color
+
+def changeBackground():
+    bg_color = cc.askcolor()
+    textarea.config(bg=bg_color[1])
+
+# Change text color
+
+def changeForeground():
+    fg_color = cc.askcolor()
+    textarea.config(fg=fg_color[1])
+
+# Change highlight color
+
+def changeHighlight():
+    highlight_color = cc.askcolor()
+    textarea.config(selectbackground=highlight_color[1])
 
 # Menubar
 menubar = Menu(win)
@@ -115,9 +150,14 @@ view_menu.add_separator()
 appearance_menu = Menu(menubar, tearoff=False)
 customize = IntVar()
 customize.set(1)
-appearance_menu.add_radiobutton(label="Background", variable=customize, value=1)
-appearance_menu.add_radiobutton(label="Text Color", variable=customize, value=2)
-appearance_menu.add_radiobutton(label="Text Font", variable=customize, value=3)
+appearance_menu.add_radiobutton(label="Background", variable=customize, value=1, command=changeBackground)
+appearance_menu.add_radiobutton(label="Text Color", variable=customize, value=2, command=changeForeground)
+appearance_menu.add_radiobutton(label="Text Highlight", variable=customize, value=3, command=changeHighlight)
+appearance_menu.add_radiobutton(label="Text Font", variable=customize, value=4)
+appearance_menu.add_separator()
+appearance_menu.add_command(label="Light mode", command=lightTheme)
+appearance_menu.add_command(label="Dark mode", command=darkTheme)
+appearance_menu.add_command(label="Ultra Dark mode", command=ultraDarkTheme)
 
 view_menu.add_cascade(menu=appearance_menu, label="Appearance")
 
