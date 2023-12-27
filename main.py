@@ -31,6 +31,27 @@ scroll_v.config(command=textarea.yview)
 def closeApp():
     win.destroy()
 
+# New file
+def newFile():
+   new = mb.askyesno(title="Are you sure?", message="Make sure to save the file before proceeding!")
+   if new:
+       win.title("Untitled - Notepad")
+       textarea.delete(1.0, END)
+   else:
+       pass
+
+# Open file
+def openFile(): # Support for basically everything
+   file = fd.askopenfilename(defaultextension='.txt', filetypes=[('All Files', '*.*'), ("Text File", "*.txt*")])
+   if file != '': # If not null choose the opened file name as the title
+       win.title(os.path.basename(file))
+       textarea.delete(1.0, END)
+       with open(file, "r") as file_: # Insert the contents of the file
+           textarea.insert(1.0, file_.read())
+           file_.close()
+   else:
+       file = None
+
 # Menubar
 menubar = Menu(win)
 win.config(menu=menubar)
@@ -38,8 +59,8 @@ win.config(menu=menubar)
 # File menu
 file_menu = Menu(menubar, tearoff=False)
 menubar.add_cascade(label="File", menu=file_menu)
-file_menu.add_command(label="New")
-file_menu.add_command(label="Open")
+file_menu.add_command(label="New", command=newFile)
+file_menu.add_command(label="Open", command=openFile)
 file_menu.add_command(label="Save")
 file_menu.add_command(label="Save As")
 file_menu.add_separator()
