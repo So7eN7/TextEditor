@@ -34,7 +34,7 @@ def closeApp():
 # New file
 def newFile():
    new = mb.askyesno(title="Are you sure?", message="Make sure to save the file before proceeding!")
-   if new:
+   if new: # If ok is pressed delete everything and make a new file
        win.title("Untitled - Notepad")
        textarea.delete(1.0, END)
    else:
@@ -52,6 +52,30 @@ def openFile(): # Support for basically everything
    else:
        file = None
 
+# Save file
+
+def saveFile():
+    file = textarea.get(1.0, 'end-1c')  # Getting the inputs except the \n
+    if file == "": # If file is empty show error
+        file = None
+        mb.showerror(title="Error", message="File cannot be empty!")
+    else: # Change the title of the program and write the file
+        win.title(os.path.basename(file))
+        file = open(file, "w")
+        file.write(textarea.get(1.0, END))
+        file.close()
+
+# Save as function
+
+def saveAsFile():  # Open the save as window
+    file = fd.asksaveasfilename(defaultextension="Untitled", initialfile="Untitled.txt",
+                                filetypes=[("Text File", "*.txt*"), ("PDF", "*.pdf*")])
+    if file:  # If save was successful change the title and write the file
+        win.title(os.path.basename(file))
+        file = open(file, "w")
+        file.write(textarea.get(1.0, END))
+        file.close()
+
 # Menubar
 menubar = Menu(win)
 win.config(menu=menubar)
@@ -61,8 +85,8 @@ file_menu = Menu(menubar, tearoff=False)
 menubar.add_cascade(label="File", menu=file_menu)
 file_menu.add_command(label="New", command=newFile)
 file_menu.add_command(label="Open", command=openFile)
-file_menu.add_command(label="Save")
-file_menu.add_command(label="Save As")
+file_menu.add_command(label="Save", command=saveFile)
+file_menu.add_command(label="Save As", command=saveAsFile)
 file_menu.add_separator()
 file_menu.add_command(label="Print")
 file_menu.add_separator()
