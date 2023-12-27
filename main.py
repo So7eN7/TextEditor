@@ -25,6 +25,12 @@ textarea = Text(frame, width=100, height=25, font=("Arial", 17), selectbackgroun
 textarea.pack()
 scroll_v.config(command=textarea.yview)
 
+# Functionality
+
+# Close the program
+def closeApp():
+    win.destroy()
+
 # Menubar
 menubar = Menu(win)
 win.config(menu=menubar)
@@ -39,7 +45,7 @@ file_menu.add_command(label="Save As")
 file_menu.add_separator()
 file_menu.add_command(label="Print")
 file_menu.add_separator()
-file_menu.add_command(label="Close")
+file_menu.add_command(label="Close", command=closeApp)
 
 # Edit menu
 edit_menu = Menu(menubar, tearoff=False)
