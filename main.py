@@ -19,11 +19,17 @@ frame.pack()
 scroll_v = Scrollbar(frame)
 scroll_v.pack(side=RIGHT, fill=Y)
 
+# Scrollbar(horizontal)
+scroll_h = Scrollbar(frame, orient="horizontal")
+scroll_h.pack(side=BOTTOM, fill=X)
+
 # Textarea
-textarea = Text(frame, width=100, height=25, font=("Arial", 17), selectbackground="cyan", selectforeground="black"
+DEFAULT_FONT_SIZE = 17
+textarea = Text(frame, width=100, height=25, font=("Arial", DEFAULT_FONT_SIZE), selectbackground="cyan", selectforeground="black"
                 ,undo=True, yscrollcommand=scroll_v.set)
 textarea.pack()
 scroll_v.config(command=textarea.yview)
+scroll_h.config(command=textarea.xview)
 
 # Functionality
 
@@ -110,6 +116,27 @@ def pasteText():
         position = textarea.index(INSERT)
         textarea.insert(position, selection)  # Insert the text at the position of the cursor (after click)
 
+# Select everything
+
+def selectAll():
+    textarea.event_generate("<<Control-Keypress-A>>")
+
+# Print file
+
+def printFile():
+    textarea.event_generate("<<Control-Keypress-P>>")
+
+# Zooming functions
+
+def zoomIn():
+    textarea.config(font=("Arial", DEFAULT_FONT_SIZE + 5))
+
+def defaultZoom():
+    textarea.config(font=("Arial", DEFAULT_FONT_SIZE))
+
+def zoomOut():
+    textarea.config(font=("Arial", DEFAULT_FONT_SIZE - 5))
+
 # Default light theme
 
 def lightTheme():
@@ -149,53 +176,60 @@ win.config(menu=menubar)
 # File menu
 file_menu = Menu(menubar, tearoff=False)
 menubar.add_cascade(label="File", menu=file_menu)
-file_menu.add_command(label="New", command=newFile)
-file_menu.add_command(label="Open", command=openFile)
-file_menu.add_command(label="Save", command=saveFile)
-file_menu.add_command(label="Save As", command=saveAsFile)
+file_menu.add_command(label="New", command=newFile, accelerator="(Ctrl+n)")
+file_menu.add_command(label="Open", command=openFile, accelerator="(Ctrl+o)")
+file_menu.add_command(label="Save", command=saveFile, accelerator="(Ctrl+s)")
+file_menu.add_command(label="Save As", command=saveAsFile, accelerator="(Ctrl+a+s)")
 file_menu.add_separator()
-file_menu.add_command(label="Print")
+file_menu.add_command(label="Print", command=printFile, accelerator="(Ctrl+p)")
 file_menu.add_separator()
 file_menu.add_command(label="Close", command=closeApp)
 
 # Edit menu
 edit_menu = Menu(menubar, tearoff=False)
 menubar.add_cascade(label="Edit", menu=edit_menu)
-edit_menu.add_command(label="Copy", command=copyText)
-edit_menu.add_command(label="Cut", command=cutText)
-edit_menu.add_command(label="Paste", command=pasteText)
+edit_menu.add_command(label="Copy", command=copyText, accelerator="(Ctrl+c)")
+edit_menu.add_command(label="Cut", command=cutText, accelerator="(Ctrl+x)")
+edit_menu.add_command(label="Paste", command=pasteText, accelerator="(Ctrl+v)")
 edit_menu.add_command(label="Delete")
 edit_menu.add_separator()
-edit_menu.add_command(label="Undo")
-edit_menu.add_command(label="Redo")
+edit_menu.add_command(label="Undo", command=textarea.edit_undo, accelerator="(Ctrl+z)")
+edit_menu.add_command(label="Redo", command=textarea.edit_redo, accelerator="(Ctrl+y)")
 edit_menu.add_separator()
-edit_menu.add_command(label="Select All")
+edit_menu.add_command(label="Select All", command=selectAll, accelerator="(Ctrl+a)")
 
 # View menu
 view_menu = Menu(menubar, tearoff=False)
 menubar.add_cascade(label="View", menu=view_menu)
-view_menu.add_command(label="Zoom")
+view_menu.add_command(label="Zoom in", command=zoomIn)
+view_menu.add_command(label="Default zoom", command=defaultZoom)
+view_menu.add_command(label="Zoom out", command=zoomOut)
 view_menu.add_separator()
 
 # Appearance menu
 appearance_menu = Menu(menubar, tearoff=False)
 customize = IntVar()
 customize.set(1)
-appearance_menu.add_radiobutton(label="Background", variable=customize, value=1, command=changeBackground)
-appearance_menu.add_radiobutton(label="Text Color", variable=customize, value=2, command=changeForeground)
-appearance_menu.add_radiobutton(label="Text Highlight", variable=customize, value=3, command=changeHighlight)
-appearance_menu.add_radiobutton(label="Text Font", variable=customize, value=4)
+appearance_menu.add_command(label="Background", command=changeBackground)
+appearance_menu.add_command(label="Text Color", command=changeForeground)
+appearance_menu.add_command(label="Text Highlight", command=changeHighlight)
+appearance_menu.add_command(label="Text Font")
 appearance_menu.add_separator()
-appearance_menu.add_command(label="Light mode", command=lightTheme)
-appearance_menu.add_command(label="Dark mode", command=darkTheme)
-appearance_menu.add_command(label="Ultra Dark mode", command=ultraDarkTheme)
+appearance_menu.add_radiobutton(label="Light mode", command=lightTheme, value=1, variable=customize)
+appearance_menu.add_radiobutton(label="Dark mode", command=darkTheme, value=2, variable=customize)
+appearance_menu.add_radiobutton(label="Ultra Dark mode", command=ultraDarkTheme, value=3, variable=customize)
 
 view_menu.add_cascade(menu=appearance_menu, label="Appearance")
 
-# Bindings
+# Key binds
 win.bind("<<Control-Keypress-X>>", cutText)
 win.bind("<<Control-Keypress-C>>", copyText)
 win.bind("<<Control-Keypress-V>>", pasteText)
+win.bind("<<Control-Keypress-A>>", selectAll)
+win.bind("<<Control-Keypress-N>>", newFile)
+win.bind("<<Control-Keypress-O>>", openFile)
+win.bind("<<Control-Keypress-S>>", saveFile)
+win.bind("<<Control-Keypress-P>>", printFile)
 
 win.update()
 win.mainloop()
