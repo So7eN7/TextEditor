@@ -79,6 +79,37 @@ def saveAsFile():  # Open the save as window
         file.write(textarea.get(1.0, END))
         file.close()
 
+# Cutting text function
+
+# Selected text
+global selection
+
+def cutText():
+    #textarea.event_generate("<<Cut>>")
+
+    if textarea.selection_get():
+        selection = textarea.selection_get()
+        textarea.delete("sel.first", "sel.last")  # Deleting text and adding it unto the clipboard
+        win.clipboard_clear()
+        win.clipboard_append(selection)
+
+# Copying text function
+
+def copyText():
+    #textarea.event_generate("<<Copy>>")
+    if textarea.selection_get():
+        selection = textarea.selection_get()  # Putting the text unto the clipboard
+        win.clipboard_clear()
+        win.clipboard_append(selection)
+
+# Pasting text function
+
+def pasteText():
+    #textarea.event_generate("<<Paste>>")
+    if selection:
+        position = textarea.index(INSERT)
+        textarea.insert(position, selection)  # Insert the text at the position of the cursor (after click)
+
 # Default light theme
 
 def lightTheme():
@@ -130,9 +161,9 @@ file_menu.add_command(label="Close", command=closeApp)
 # Edit menu
 edit_menu = Menu(menubar, tearoff=False)
 menubar.add_cascade(label="Edit", menu=edit_menu)
-edit_menu.add_command(label="Copy")
-edit_menu.add_command(label="Cut")
-edit_menu.add_command(label="Paste")
+edit_menu.add_command(label="Copy", command=copyText)
+edit_menu.add_command(label="Cut", command=cutText)
+edit_menu.add_command(label="Paste", command=pasteText)
 edit_menu.add_command(label="Delete")
 edit_menu.add_separator()
 edit_menu.add_command(label="Undo")
@@ -160,6 +191,11 @@ appearance_menu.add_command(label="Dark mode", command=darkTheme)
 appearance_menu.add_command(label="Ultra Dark mode", command=ultraDarkTheme)
 
 view_menu.add_cascade(menu=appearance_menu, label="Appearance")
+
+# Bindings
+win.bind("<<Control-Keypress-X>>", cutText)
+win.bind("<<Control-Keypress-C>>", copyText)
+win.bind("<<Control-Keypress-V>>", pasteText)
 
 win.update()
 win.mainloop()
