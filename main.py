@@ -25,8 +25,9 @@ scroll_h.pack(side=BOTTOM, fill=X)
 
 # Textarea
 DEFAULT_FONT_SIZE = 17
+TEXT_WRAP = "none"
 textarea = Text(frame, width=100, height=25, font=("Arial", DEFAULT_FONT_SIZE), selectbackground="cyan", selectforeground="black"
-                ,undo=True, yscrollcommand=scroll_v.set)
+            ,undo=True, yscrollcommand=scroll_v.set, wrap=TEXT_WRAP)
 textarea.pack()
 scroll_v.config(command=textarea.yview)
 scroll_h.config(command=textarea.xview)
@@ -137,6 +138,10 @@ def defaultZoom():
 def zoomOut():
     textarea.config(font=("Arial", DEFAULT_FONT_SIZE - 5))
 
+def textWrap():
+    TEXT_WRAP = WORD
+    textarea.config(wrap=TEXT_WRAP)
+
 # Default light theme
 
 def lightTheme():
@@ -168,6 +173,15 @@ def changeForeground():
 def changeHighlight():
     highlight_color = cc.askcolor()
     textarea.config(selectbackground=highlight_color[1])
+
+# Terminal launch
+
+def launchTerminal():
+    #termwin = Toplevel()
+    termf = Frame(win, height=400, width=500)
+    termf.pack(fill=BOTH, expand=YES)
+    wid = termf.winfo_id()
+    os.system('cmd -into %d -geometry 40x20 -sb &' % wid)
 
 # Menubar
 menubar = Menu(win)
@@ -205,7 +219,10 @@ view_menu.add_command(label="Zoom in", command=zoomIn)
 view_menu.add_command(label="Default zoom", command=defaultZoom)
 view_menu.add_command(label="Zoom out", command=zoomOut)
 view_menu.add_separator()
-
+view_menu.add_checkbutton(label="Text Wrap", command=textWrap)
+view_menu.add_separator()
+view_menu.add_command(label="Terminal", command=launchTerminal)
+view_menu.add_separator()
 # Appearance menu
 appearance_menu = Menu(menubar, tearoff=False)
 customize = IntVar()
@@ -213,7 +230,6 @@ customize.set(1)
 appearance_menu.add_command(label="Background", command=changeBackground)
 appearance_menu.add_command(label="Text Color", command=changeForeground)
 appearance_menu.add_command(label="Text Highlight", command=changeHighlight)
-appearance_menu.add_command(label="Text Font")
 appearance_menu.add_separator()
 appearance_menu.add_radiobutton(label="Light mode", command=lightTheme, value=1, variable=customize)
 appearance_menu.add_radiobutton(label="Dark mode", command=darkTheme, value=2, variable=customize)
