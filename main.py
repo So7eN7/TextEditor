@@ -3,8 +3,8 @@ from tkinter import *
 import tkinter.filedialog as fd
 import tkinter.messagebox as mb
 import tkinter.colorchooser as cc
+import tkinter.font as font
 import os
-
 # Main Window
 win = Tk()
 win.title("Untitled - Notepad")
@@ -130,7 +130,7 @@ def printFile():
 # Zooming functions
 
 def zoomIn():
-    textarea.config(font=("Arial", DEFAULT_FONT_SIZE + 5))
+    textarea.config(font=("Arial", DEFAULT_FONT_SIZE + 13))
 
 def defaultZoom():
     textarea.config(font=("Arial", DEFAULT_FONT_SIZE))
@@ -174,14 +174,85 @@ def changeHighlight():
     highlight_color = cc.askcolor()
     textarea.config(selectbackground=highlight_color[1])
 
+def boldFont():
+    textarea.config(font=("Arial", DEFAULT_FONT_SIZE, font.BOLD))
+
+def italicFont():
+    textarea.config(font=("Arial", DEFAULT_FONT_SIZE, font.ITALIC))
+
 # Terminal launch
 
-def launchTerminal():
+def launchTerminalCMD():
     #termwin = Toplevel()
     termf = Frame(win, height=400, width=500)
     termf.pack(fill=BOTH, expand=YES)
     wid = termf.winfo_id()
     os.system('cmd -into %d -geometry 40x20 -sb &' % wid)
+
+def launchTerminalPowerShell():
+    os.system("powershell")
+
+# Although all these are barebone and WIP this one is really really WIP
+
+def launchTerminalBash():
+    os.system("bash")
+
+# show info
+
+def showInfo():
+    mb.showinfo(title="About TextEditor", message="Hopefully i won't forget about this and make it way better (another gui hopefully)")
+
+# show help
+
+def showHelp():
+    commands = """
+    File menu
+    -----------------------
+    - New = Opens a new file
+    - Open = Opens a file that you choose
+    - Save/Save as = Saves the file
+    - Print = Print's the file
+    - Close = Closes the file
+    -----------------------
+    Edit menu
+    -----------------------
+    - Copy = Copies the highlighted text
+    - Cut = Cuts the highlighted text
+    - Paste = Pastes the text from the clipboard
+    - Delete = Deletes the highlighted text
+    - Undo = Undo the action
+    - Redo = Redo the action
+    - Select-All = Select everything in the text area
+    -----------------------
+    View menu
+    -----------------------
+    - Zoom = 3 zooming options
+    - Text wrap = Enables the text wrap  
+    -----------------------
+    Appearance menu 
+    -----------------------
+    - Themes = 3 modes (light - dark - ultra dark)
+    - Background = Change the background color
+    - Text color = Change the text color
+    - Highlight color = Change the highlight color
+    - Bold = Enables bold font
+    - Italic = Enables italic font
+    -----------------------
+    Terminal menu
+    -----------------------
+    - Launch cmd = Windows command prompt
+    - Launch PowerShell = Windows powershell
+    - Launch bash = Bash in cmd (might open WSL)
+    -----------------------
+    """
+
+    mb.showinfo(title="Commands", message=commands)
+
+# Show updates
+
+def showUpdates():
+    mb.showinfo(title="Upcoming", message="Bugfixes and QoL")
+
 
 # Menubar
 menubar = Menu(win)
@@ -221,8 +292,7 @@ view_menu.add_command(label="Zoom out", command=zoomOut)
 view_menu.add_separator()
 view_menu.add_checkbutton(label="Text Wrap", command=textWrap)
 view_menu.add_separator()
-view_menu.add_command(label="Terminal", command=launchTerminal)
-view_menu.add_separator()
+
 # Appearance menu
 appearance_menu = Menu(menubar, tearoff=False)
 customize = IntVar()
@@ -234,8 +304,28 @@ appearance_menu.add_separator()
 appearance_menu.add_radiobutton(label="Light mode", command=lightTheme, value=1, variable=customize)
 appearance_menu.add_radiobutton(label="Dark mode", command=darkTheme, value=2, variable=customize)
 appearance_menu.add_radiobutton(label="Ultra Dark mode", command=ultraDarkTheme, value=3, variable=customize)
-
+appearance_menu.add_separator()
+appearance_menu.add_checkbutton(label="Bold", command=boldFont)
+appearance_menu.add_checkbutton(label="Italic", command=italicFont)
 view_menu.add_cascade(menu=appearance_menu, label="Appearance")
+
+# Terminal menu
+
+terminal_menu = Menu(menubar, tearoff=False)
+menubar.add_cascade(label="Terminal", menu=terminal_menu)
+terminal_menu.add_command(label="Launch cmd", command=launchTerminalCMD)
+terminal_menu.add_command(label="Launch PowerShell", command=launchTerminalPowerShell)
+terminal_menu.add_separator()
+terminal_menu.add_command(label="Launch bash", command=launchTerminalBash)
+
+# About menu
+
+about_menu = Menu(menubar, tearoff=False)
+menubar.add_cascade(label="About", menu=about_menu)
+about_menu.add_command(label="Info", command=showInfo)
+about_menu.add_command(label="Help", command=showHelp)
+about_menu.add_separator()
+about_menu.add_command(label="Updates", command=showUpdates)
 
 # Key binds
 win.bind("<<Control-Keypress-X>>", cutText)
