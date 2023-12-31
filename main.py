@@ -184,18 +184,19 @@ def italicFont():
 
 def launchTerminalCMD():
     #termwin = Toplevel()
-    termf = Frame(win, height=400, width=500)
-    termf.pack(fill=BOTH, expand=YES)
-    wid = termf.winfo_id()
-    os.system('cmd -into %d -geometry 40x20 -sb &' % wid)
+    # termf = Frame(win, height=400, width=500)
+    # termf.pack(fill=BOTH, expand=YES)
+    # wid = termf.winfo_id()
+    # os.system('cmd -into %d -geometry 40x20 -sb &' % wid)
+    os.system("start cmd")
 
 def launchTerminalPowerShell():
-    os.system("powershell")
+    os.system("start powershell")
 
 # Although all these are barebone and WIP this one is really really WIP
 
 def launchTerminalBash():
-    os.system("bash")
+    os.system("start bash")
 
 # show info
 
