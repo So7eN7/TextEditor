@@ -36,6 +36,30 @@ textarea.pack()
 scroll_v.config(command=textarea.yview)
 scroll_h.config(command=textarea.xview)
 
+# Syntax tags
+
+textarea.tag_configure("red", foreground="red")
+textarea.tag_configure("green", foreground="green")
+textarea.tag_configure("blue", foreground="blue")
+textarea.tag_configure("yellow", foreground="yellow")
+textarea.tag_configure("pink", foreground="pink")
+
+tags = ["red", "green", "blue", "gold", "pink"]
+
+# Syntax wordlists (for highlighting)
+
+wordlist_python = [["import", "from", "as"],
+                   ["class", "def", "for", "while","else", "elif", "if"],
+                   ["int", "str", "float", "bool", "print"],
+                   ["tkinter", "collections", "sys", "os", "string"],
+                   ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]]
+
+wordlist_cpp = [["#include", "#ifdef", "#pragma", "#define", "endif"],
+                ["int", "void", "float", "double", "bool", "namespace", "using"],
+                ["class", "template", "public", "private", "string", "protected", "virtual"],
+                ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+                ["NULL", "__define__"]]
+
 # Functionality
 
 # Close the program
@@ -222,6 +246,63 @@ def boldFont():
 def italicFont():
     textarea.config(font=("Arial", DEFAULT_FONT_SIZE, font.ITALIC))
 
+# Syntax Highlighting
+
+# def defaultHighlighting():
+#     textarea.config(bg="white", fg="black")
+
+# Python highlighting
+
+def pythonHighlighting():
+    START = "1.0"  # Constants
+    END = "end"
+    for wordlist in wordlist_python:
+        num = int(wordlist_python.index(wordlist))
+        for word in wordlist:  # Finding all the keywords
+            textarea.mark_set("match_start", START)
+            textarea.mark_set("match_end", START)
+            textarea.mark_set("search_limit", END)
+
+            rcount = IntVar()
+
+            while True:  # The reason that we search from match_end is to resume the search not to be stuck on one word
+                index = textarea.search(word, "match_end", "search_limit", count=rcount, regexp=False)
+                if index == "":
+                    break
+                if rcount.get() == 0:
+                    break
+
+                textarea.mark_set("match_start", index)   # Setting the colors
+                textarea.mark_set("match_end", "%s+%sc" % (index, rcount.get()))
+                #  percent sign is a placeholder for the index
+                textarea.tag_add(tags[num], "match_start", "match_end")
+
+# C++ highlighting
+
+def cppHighlighting():
+    START = "1.0"
+    END = "end"
+    for wordlist in wordlist_cpp:  # Same as above but the wordlist is changed
+        num = int(wordlist_cpp.index(wordlist))
+        for word in wordlist:
+            textarea.mark_set("match_start", START)
+            textarea.mark_set("match_end", START)
+            textarea.mark_set("search_limit", END)
+
+            rcount = IntVar()
+
+            while True:
+                index = textarea.search(word, "match_end", "search_limit", count=rcount, regexp=False)
+                if index == "":
+                    break
+                if rcount.get() == 0:
+                    break
+
+                textarea.mark_set("match_start", index)
+                textarea.mark_set("match_end", "%s+%sc" % (index, rcount.get()))
+
+                textarea.tag_add(tags[num], "match_start", "match_end")
+
 # Terminal launch
 
 def launchTerminalCMD():
@@ -350,8 +431,17 @@ appearance_menu.add_radiobutton(label="Ultra Dark mode", command=ultraDarkTheme,
 appearance_menu.add_separator()
 appearance_menu.add_checkbutton(label="Bold", command=boldFont)
 appearance_menu.add_checkbutton(label="Italic", command=italicFont)
+appearance_menu.add_separator()
 view_menu.add_cascade(menu=appearance_menu, label="Appearance")
 
+# Syntax Highlighting menu
+syntax_menu = Menu(menubar, tearoff=False)
+syntax = IntVar()
+syntax.set(1)
+syntax_menu.add_radiobutton(label="Default", value=1, variable=syntax)
+syntax_menu.add_radiobutton(label="Python", command=pythonHighlighting, value=2, variable=syntax)
+syntax_menu.add_radiobutton(label="CPP", command=cppHighlighting, value=3, variable=syntax)
+appearance_menu.add_cascade(menu=syntax_menu, label="Syntax Highlighting")
 # Terminal menu
 
 terminal_menu = Menu(menubar, tearoff=False)
