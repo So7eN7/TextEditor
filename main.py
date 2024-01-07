@@ -41,7 +41,7 @@ scroll_h.config(command=textarea.xview)
 textarea.tag_configure("red", foreground="red")
 textarea.tag_configure("green", foreground="green")
 textarea.tag_configure("blue", foreground="blue")
-textarea.tag_configure("yellow", foreground="yellow")
+textarea.tag_configure("gold", foreground="gold")
 textarea.tag_configure("pink", foreground="pink")
 
 tags = ["red", "green", "blue", "gold", "pink"]
@@ -361,6 +361,12 @@ def showHelp():
     - Highlight color = Change the highlight color
     - Bold = Enables bold font
     - Italic = Enables italic font
+    -----------------------
+    Syntax Highlight menu
+    -----------------------
+    - Default = Default(light theme)
+    - Python = Highlighting for python
+    - CPP = Highlighting for C++
     -----------------------
     Terminal menu
     -----------------------
