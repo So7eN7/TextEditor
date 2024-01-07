@@ -5,11 +5,15 @@ import tkinter.messagebox as mb
 import tkinter.colorchooser as cc
 import tkinter.font as font
 import os
+from collections import deque
 # Main Window
 win = Tk()
 win.title("Untitled - Notepad")
 win.geometry("800x500")
 win.resizable()
+
+# For undo/redo
+stack = deque(maxlen=17)
 
 # Main Frame to set our text area
 frame = Frame(win)
@@ -67,13 +71,12 @@ def openFile(): # Support for basically everything
 def saveFile():
     file = textarea.get(1.0, 'end-1c')  # Getting the inputs except the \n
     if file == "": # If file is empty show error
-        file = None
         mb.showerror(title="Error", message="File cannot be empty!")
     else: # Change the title of the program and write the file
         win.title(os.path.basename(file))
-        file = open(file, "w")
-        file.write(textarea.get(1.0, END))
-        file.close()
+        with open(file, "w") as f:
+            f.write(textarea.get(1.0, END))
+            f.close()
 
 # Save as function
 
@@ -117,15 +120,54 @@ def pasteText():
         position = textarea.index(INSERT)
         textarea.insert(position, selection)  # Insert the text at the position of the cursor (after click)
 
+# Clear function (for undo/redo purposes)
+
+def clear():
+    textarea.delete("1.0", END)
+
+# Stack cursor for our undo block
+stack_cursor = 0
+
+# Will stackify the deque that will hold our inputs
+def stackify(stack_cursor=stack_cursor):
+    stack.append(textarea.get("1.0", "end-1c"))
+    if stack_cursor < 16:  # Preventing overflow
+        stack_cursor += 1
+
+# Printing the input stack in our terminal
+
+def printStack():
+    i = 0
+    for s in stack:
+        print(str(i) + " " + s)
+        i += 1
+
+# Undo function
+def undo(stack_cursor=stack_cursor):
+    clear()
+    if stack_cursor > 0:  # If not empty go back (into the stack)
+        stack_cursor -= 1
+
+    textarea.insert("0.0", stack[stack_cursor])  # Insert what's left
+
+# Redo function
+
+def redo(stack_cursor=stack_cursor):
+    clear()
+    if stack_cursor < 9:  # Preventing overflow
+        stack_cursor += 1
+
+    textarea.insert("0.0", stack[stack_cursor])  # Insert what's left
+
 # Select everything
 
 def selectAll():
     textarea.event_generate("<<Control-Keypress-A>>")
 
-# Print file
+# Print the input stack
 
-def printFile():
-    textarea.event_generate("<<Control-Keypress-P>>")
+def printWordStack():
+    printStack()
 
 # Zooming functions
 
@@ -212,7 +254,7 @@ def showHelp():
     - New = Opens a new file
     - Open = Opens a file that you choose
     - Save/Save as = Saves the file
-    - Print = Print's the file
+    - Print = Will print the input stack in terminal
     - Close = Closes the file
     -----------------------
     Edit menu
@@ -267,7 +309,7 @@ file_menu.add_command(label="Open", command=openFile, accelerator="(Ctrl+o)")
 file_menu.add_command(label="Save", command=saveFile, accelerator="(Ctrl+s)")
 file_menu.add_command(label="Save As", command=saveAsFile, accelerator="(Ctrl+a+s)")
 file_menu.add_separator()
-file_menu.add_command(label="Print", command=printFile, accelerator="(Ctrl+p)")
+file_menu.add_command(label="Print(stack)", command=printWordStack, accelerator="(Ctrl+p)")
 file_menu.add_separator()
 file_menu.add_command(label="Close", command=closeApp)
 
@@ -279,8 +321,8 @@ edit_menu.add_command(label="Cut", command=cutText, accelerator="(Ctrl+x)")
 edit_menu.add_command(label="Paste", command=pasteText, accelerator="(Ctrl+v)")
 edit_menu.add_command(label="Delete")
 edit_menu.add_separator()
-edit_menu.add_command(label="Undo", command=textarea.edit_undo, accelerator="(Ctrl+z)")
-edit_menu.add_command(label="Redo", command=textarea.edit_redo, accelerator="(Ctrl+y)")
+edit_menu.add_command(label="Undo", command=undo, accelerator="(Ctrl+z)")
+edit_menu.add_command(label="Redo", command=redo, accelerator="(Ctrl+y)")
 edit_menu.add_separator()
 edit_menu.add_command(label="Select All", command=selectAll, accelerator="(Ctrl+a)")
 
@@ -336,7 +378,8 @@ win.bind("<<Control-Keypress-A>>", selectAll)
 win.bind("<<Control-Keypress-N>>", newFile)
 win.bind("<<Control-Keypress-O>>", openFile)
 win.bind("<<Control-Keypress-S>>", saveFile)
-win.bind("<<Control-Keypress-P>>", printFile)
+win.bind("<<Control-Keypress-P>>", printWordStack)
+win.bind("<Key>", lambda event: stackify())
 
 win.update()
 win.mainloop()
