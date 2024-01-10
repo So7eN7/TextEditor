@@ -144,6 +144,9 @@ def pasteText():
         position = textarea.index(INSERT)
         textarea.insert(position, selection)  # Insert the text at the position of the cursor (after click)
 
+def deleteText():
+    textarea.delete("sel.first", "sel.last")
+
 # Clear function (for undo/redo purposes)
 
 def clear():
@@ -178,7 +181,7 @@ def undo(stack_cursor=stack_cursor):
 
 def redo(stack_cursor=stack_cursor):
     clear()
-    if stack_cursor < 9:  # Preventing overflow
+    if stack_cursor < 16:  # Preventing overflow
         stack_cursor += 1
 
     textarea.insert("0.0", stack[stack_cursor])  # Insert what's left
@@ -406,7 +409,7 @@ menubar.add_cascade(label="Edit", menu=edit_menu)
 edit_menu.add_command(label="Copy", command=copyText, accelerator="(Ctrl+c)")
 edit_menu.add_command(label="Cut", command=cutText, accelerator="(Ctrl+x)")
 edit_menu.add_command(label="Paste", command=pasteText, accelerator="(Ctrl+v)")
-edit_menu.add_command(label="Delete")
+edit_menu.add_command(label="Delete", command=deleteText)
 edit_menu.add_separator()
 edit_menu.add_command(label="Undo", command=undo, accelerator="(Ctrl+z)")
 edit_menu.add_command(label="Redo", command=redo, accelerator="(Ctrl+y)")
